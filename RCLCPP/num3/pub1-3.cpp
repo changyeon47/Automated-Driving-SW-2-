@@ -21,10 +21,10 @@ int main(int argc, char*argv[]) {//메인함수
         else if(a == 'b'){//조건문
             message.linear.x = -10;//맴버변수 값 변경
         }
-        else if(a == 'l'){//조건문
+        else if(a == 'r'){//조건문
             message.angular.z = -10;//맴버변수 값 변경
         }
-        else if(a == 'r'){//조건문
+        else if(a == 'l'){//조건문
             message.angular.z = 10;//맴버 변수값 변경
         }
         RCLCPP_INFO(node->get_logger(), "Publish: %c", a);//퍼블리시할 데이터를 콘솔에 입력 
