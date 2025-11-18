@@ -21,5 +21,6 @@ windows에도 밑에 사진을 보면 13326-5GHz에 연결되어있다
 
 ### wsl2-ubuntu 에서 환경변수 ROS_DOMAIN_ID값을 확인하라.
 <img width="490" height="88" alt="image" src="https://github.com/user-attachments/assets/6b37dd5b-e193-45a2-bc7f-6328f8258a95" />
+
 ### 2개가 로봇번호와 같은지 확인하라.
 wsl2-ubuntu 에서 환경변수 ROS_DOMAIN_ID값과 Jetson nano 에서 환경변수 ROS_DOMAIN_ID값을 확인해보면 9로 같은걸 볼수있다.
