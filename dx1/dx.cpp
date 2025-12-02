@@ -5,6 +5,7 @@
 #include <iostream>
 int main(int argc, char * argv[])
 {
+    bool a = false;
     rclcpp::init(argc, argv);
     auto node = std::make_shared<rclcpp::Node>("dxl2");
     rclcpp::WallRate loop_rate(10.0);
@@ -18,22 +19,25 @@ int main(int argc, char * argv[])
     }
     while(rclcpp::ok())
     {
-        if (mx.kbhit()) //키보드입력 체크
-        {
-            char c = mx.getch(); //키입력 받기
-            switch(c){
-            case 's': vel1 = 0; vel2 = 0; break; //정지
-            case 'f': vel1 = 50; vel2 = -50; break; //전진
-            case 'b': vel1 = -50; vel2 = 50; break; //후진
-            case 'l': vel1 = -50; vel2 = -50; break; //좌회전
-            case 'r': vel1 = 50; vel2 = 50; break; //우회전
-            default : vel1 = 0; vel2 = 0; break; //정지
-            }
-            mx.setVelocity(vel1,vel2);
-    }
+        if(vel1 == 300 && vel2 == 300){
+            a = true;
+        }
+        else if(vel1 == -300 && vel2 == -300){
+            a = false;
+        }
+        if(!a){
+            vel1 += 10;
+            vel2 = vel1;
+        }
+        if(a){
+            vel1 -= 10;
+            vel2 = vel1;
+        }
+        mx.setVelocity(vel1,vel2);
         RCLCPP_INFO(node->get_logger(),"left speed:%d,right speed:%d",vel1,vel2);
         loop_rate.sleep();
     }
+    mx.close();
     rclcpp::shutdown();
     return 0;
 }
