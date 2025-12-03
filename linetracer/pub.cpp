@@ -20,14 +20,13 @@ int main(int argc, char * argv[])
     sensor_msgs::msg::CompressedImage::SharedPtr msg;
     rclcpp::WallRate loop_rate(10.0);
 
-    cv::VideoCapture cap(src, cv::CAP_GSTREAMER);
+    cv::VideoCapture cap(src);
     if (!cap.isOpened()) {
         RCLCPP_ERROR(node->get_logger(), "Could not open video!");
         rclcpp::shutdown();
         return -1;
     }
     cv::Mat frame;
-
     while(rclcpp::ok())
     {
         cap >> frame;
