@@ -2,7 +2,8 @@
 https://youtu.be/807pPFbpGvk
 #### linetracer outline
 https://youtu.be/DWen5teSCWc
-##### 전처리 알고리즘
+
+###### 전처리 알고리즘
 
     void LineTracker::preprocess(const cv::Mat& frame){
 
