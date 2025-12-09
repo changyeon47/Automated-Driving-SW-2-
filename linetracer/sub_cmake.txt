@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(linedetect_wsl)
+project(video)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -16,12 +16,21 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 
+include_directories(
+  src             # LineTracker.hpp 같은 헤더 위치
+  ${OpenCV_INCLUDE_DIRS}
+)
+
 #build
-add_executable(sub src/sub.cpp)
+add_executable(pub src/pub.cpp)
+ament_target_dependencies(pub rclcpp sensor_msgs cv_bridge OpenCV)
+add_executable(sub src/sub.cpp src/class.cpp)
 ament_target_dependencies(sub rclcpp sensor_msgs cv_bridge OpenCV)
+
 
 # Install
 install(TARGETS
+  pub
   sub
   DESTINATION lib/${PROJECT_NAME})
 
