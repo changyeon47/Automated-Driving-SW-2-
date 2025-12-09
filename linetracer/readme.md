@@ -21,7 +21,7 @@ https://youtu.be/DWen5teSCWc
     }
 
 입력 영상의 하단 1/4 정도를 ROI로 사용
-cv::cvtColor로 그레이스케일 변환
+**cv::cvtColor**로 그레이스케일 변환
 cv::mean으로 평균 밝기 구해서 원하는 평균 밝기에 맞게 보정
 cv::threshold 함수를 이용하여 이진화
 
