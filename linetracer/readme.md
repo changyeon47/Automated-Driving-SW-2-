@@ -3,7 +3,7 @@ https://youtu.be/807pPFbpGvk
 #### linetracer outline
 https://youtu.be/DWen5teSCWc
 
-###### 전처리 알고리즘
+###### 1. 전처리 알고리즘
 
     void LineTracker::preprocess(const cv::Mat& frame){
 
@@ -25,7 +25,7 @@ cv::cvtColor로 그레이스케일 변환
 cv::mean으로 평균 밝기 구해서 원하는 평균 밝기에 맞게 보정
 cv::threshold 함수를 이용하여 이진화
 
-##### 라인 검출(레이블링, 이전 위치 기반 추적)
+##### 2. 라인 검출(레이블링, 이전 위치 기반 추적)
 
     void LineTracker::computeConnectedComponents()
     {
@@ -35,7 +35,7 @@ cv::threshold 함수를 이용하여 이진화
 
 cv:: connectedComponentsWithStats 함수를 이용하여 라인 후보 영역을 찾는다.
 찾는 방법은 x,y좌표 폭/높이, 면적, 무게중심을 저장하여 후보를 지정
-#### 라인 기준 선택
+#### 3. 라인 기준 선택
 
 
     int area = stats.at<int>(i, CC_STAT_AREA);
@@ -43,8 +43,6 @@ cv:: connectedComponentsWithStats 함수를 이용하여 라인 후보 영역을
     
 for(int i = 1; i< components; ++i) 0번 라벨은 항상 배경이아 제외
 if(area > min_area)보다 작으면 노이즈, 너무 얇은 선등으로 판단하여 라인 후보에서 제외
-
-'''cpp
 
     int dist = norm(Point(x, y) - pt);
     if (dist < min_dist && dist <= max_track_dist) {
@@ -58,7 +56,7 @@ pt는 이전 프레임에서 선택된 라인의 위치
 
  조건을 만족하는 라벨이 하나도 없으면 pt를 업데이트하지 않음
 
- ##### 디버깅 시각화 
+ ##### 4. 디버깅 시각화 
  
     void LineTracker::drawObjects(bool found_target)
     {
@@ -98,7 +96,7 @@ pt는 이전 프레임에서 선택된 라인의 위치
 모든 라인 후보는 파란색 바운딩 박스
 선택된 라인은 빨간 바운딩 박스와 무게 중심에 빨간 점
 
-##### 위치오차 계산
+##### 6. 위치오차 계산
 
     int LineTracker::computeError() const
     {
@@ -110,7 +108,7 @@ pt는 이전 프레임에서 선택된 라인의 위치
 error = 영상중심 x좌표 - 라인의 무게중심 x좌표
 RCLCPP_INFO(node->get_logger(), "err:%d, time:%.5f", error, totalTime_s); 이 코드를 통해 터미널에 문구 출력
 
-##### 처리 결과 영상 저장
+##### 7. 처리 결과 영상 저장
 
     void LineTracker::writeFrame()
     {
