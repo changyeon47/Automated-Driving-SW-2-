@@ -3,7 +3,7 @@ https://youtu.be/807pPFbpGvk
 #### linetracer outline
 https://youtu.be/DWen5teSCWc
 
-'''
+
 
 void LineTracker::preprocess(const cv::Mat& frame)
 {
@@ -29,4 +29,3 @@ void LineTracker::preprocess(const cv::Mat& frame)
     }
 }
 
-'''
