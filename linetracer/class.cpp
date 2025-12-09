@@ -2,39 +2,39 @@
 
 using namespace cv;
 
-// --- 전처리 ---
+// --- (A) 전처리 ---
 void LineTracker::preprocess(const Mat& frame)
 {
-    // BGR -> Gray
+    // 1) BGR -> Gray
     cvtColor(frame, gray, COLOR_BGR2GRAY);
 
-    // 밝기 평균 맞추기
+    // 2) 밝기 평균 맞추기
     Scalar bright_avg = mean(gray);
     gray = gray + (target_brightness - bright_avg[0]);
 
-    // 이진화
+    // 3) 이진화
     threshold(gray, thresh, bin_threshold, 255, THRESH_BINARY);
 
-    // 하단 1/4만 ROI로 사용
+    // 4) 하단 1/4만 ROI로 사용
     int r_pts = thresh.rows / 4 * 3;
     Rect roi(0, r_pts, thresh.cols, thresh.rows - r_pts);
     thresh = thresh(roi).clone();   // ROI 복사본으로 저장
 
-    // 첫 프레임이면 기준점 중앙으로 초기화
+    // 5) 첫 프레임이면 기준점 중앙으로 초기화
     if (!first_pt) {
         pt = Point(thresh.cols / 2, thresh.rows / 2);
         first_pt = true;
     }
 }
 
-// 라벨링 함수
+// --- (B) 라벨링 ---
 void LineTracker::computeConnectedComponents()
 {
     components = connectedComponentsWithStats(
         thresh, labels, stats, centroids);
 }
 
-//  기준점(pt)에 가장 가까운 객체 찾는 함수
+// --- (C) 기준점(pt)에 가장 가까운 객체 찾기 ---
 bool LineTracker::updateTrackingPoint()
 {
     int min_index = -1;
@@ -62,10 +62,10 @@ bool LineTracker::updateTrackingPoint()
     return false;
 }
 
-// 박스/점 그리는 함수
+// --- (D) 박스/점 그리기 ---
 void LineTracker::drawObjects(bool found_target)
 {
-    // 1채널 ROI에서 3채널 BGR로 변환
+    // 1채널 ROI -> 3채널 BGR로 변환
     cvtColor(thresh, color, COLOR_GRAY2BGR);
 
     for (int i = 1; i < components; ++i) {
@@ -82,11 +82,11 @@ void LineTracker::drawObjects(bool found_target)
             );
 
             if (x == pt.x && found_target) {
-                // 추적중인 선은 빨간색
+                // 추적중인 선 → 빨간색
                 rectangle(color, box, Scalar(0, 0, 255), 2);
                 circle(color, Point(x, y), 5, Scalar(0, 0, 255), -1);
             } else {
-                // 나머지 후보인 선은 파란색
+                // 나머지 후보 → 파란색
                 rectangle(color, box, Scalar(255, 0, 0), 2);
                 circle(color, Point(x, y), 5, Scalar(255, 0, 0), -1);
             }
@@ -99,7 +99,7 @@ void LineTracker::drawObjects(bool found_target)
     }
 }
 
-// 에러 계산 함수
+// --- (E) 에러 계산 ---
 int LineTracker::computeError() const
 {
     if (color.empty()) {
@@ -108,20 +108,26 @@ int LineTracker::computeError() const
     return (color.cols / 2) - pt.x;
 }
 
-// 처리된 ROI 반환
+// --- (F) 처리된 ROI 반환 ---
 const Mat& LineTracker::getThreshColor() const
 {
     return color;
 }
 
-// 비디오 저장 함수
-void LineTracker::writeFrame(const Mat& frame)
+// --- (G) (옵션) 비디오 저장용 ---
+void LineTracker::writeFrame()
 {
+    // 아직 drawObjects가 안 돌아간 상태면 color가 비어 있을 수 있음
+    if (color.empty()) {
+        std::cerr << "⚠️ 처리된 프레임(color)이 비어 있어서 저장할 수 없습니다.\n";
+        return;
+    }
+
     if (!video_writer_.isOpened()) {
-        int fourcc = VideoWriter::fourcc('M', 'J', 'P', 'G');
+        int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
         double fps = 30.0;
-        Size size = frame.size();
-        std::string filename = "output.avi";
+        cv::Size size = color.size();
+        std::string filename = "output_proc.avi";   // 처리 영상이니까 이름도 바꿔두자
 
         video_writer_.open(filename, fourcc, fps, size, true);
         if (!video_writer_.isOpened()) {
@@ -129,5 +135,7 @@ void LineTracker::writeFrame(const Mat& frame)
             return;
         }
     }
-    video_writer_.write(frame);
+
+    // 전처리 + bbox + 점까지 그려진 Mat 저장
+    video_writer_.write(color);
 }
