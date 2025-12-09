@@ -1,39 +1,59 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/compressed_image.hpp"
 #include "opencv2/opencv.hpp"
+#include "class.hpp"
 #include <memory>
 #include <functional>
 #include <iostream>
+#include <vector>
+using namespace std;
+using namespace cv;
 using std::placeholders::_1;
-cv::VideoWriter recorder("save.mp4",cv::VideoWriter::fourcc('X','2','6','4'),10,cv::Size(640, 360));
-void mysub_callback(rclcpp::Node::SharedPtr node, const sensor_msgs::msg::CompressedImage::SharedPtr msg)
+VideoWriter recorder("save.mp4",VideoWriter::fourcc('X','2','6','4'),10,Size(640, 360));
+
+void mysub_callback(rclcpp::Node::SharedPtr node,
+                    const sensor_msgs::msg::CompressedImage::SharedPtr msg)
 {
+    static LineTracker tracker;          // 라인 트래커 상태 유지용
+
+    auto startTime = std::chrono::steady_clock::now();
+
+    // 1) 압축 이미지 → BGR Mat 복원
     cv::Mat frame = cv::imdecode(cv::Mat(msg->data), cv::IMREAD_COLOR);
-    cv::Mat frame2;
-    cv::Mat gray,bin;
-    recorder.write(frame);
-    frame2 = frame(cv::Rect(0,270,640,90));
-    cv::cvtColor(frame2, gray, cv::COLOR_RGB2GRAY);
-    double total_brightness = 0;
-    for (int i = 0; i < gray.rows; ++i) {
-        for (int j = 0; j < gray.cols; ++j) {
-            total_brightness += gray.at<uchar>(i, j);
-        }
+    if (frame.empty()) {
+        RCLCPP_WARN(node->get_logger(), "Empty frame");
+        return;
     }
-    gray = gray + (100 - total_brightness/(gray.rows*gray.cols));
-    cv::threshold(gray, bin, 100,255,cv::THRESH_BINARY);
-    cv::imshow("wsl",frame);
-    cv::imshow("wsl2",bin);
+    tracker.writeFrame(frame);
+    tracker.preprocess(frame);
+    tracker.computeConnectedComponents();
+    bool found = tracker.updateTrackingPoint();
+    tracker.drawObjects(found);
+    int error = tracker.computeError();
+
+    // 4) 두 개의 창에 각각 출력
+    cv::imshow("raw",  frame);                    // 원본 영상
+    cv::imshow("proc", tracker.getThreshColor()); // 이진 + 사각형/점
+
     cv::waitKey(1);
-    RCLCPP_INFO(node->get_logger(), "Received Image : %s,%d,%d", msg->format.c_str(),frame.rows,frame.cols);
+
+    // 5) 시간 측정 및 로그
+    auto endTime = std::chrono::steady_clock::now();
+    float totalTime_ms = std::chrono::duration<float, std::milli>(endTime - startTime).count();
+    float totalTime_s  = totalTime_ms / 1000.0f;
+
+    RCLCPP_INFO(node->get_logger(), "err:%d, time:%.5f", error, totalTime_s);
 }
+
+
+
 int main(int argc, char* argv[])
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<rclcpp::Node>("camsub_wsl9");
+    auto node = make_shared<rclcpp::Node>("camsub_wsl9");
     auto qos_profile = rclcpp::QoS(rclcpp::KeepLast(10)); //TCP
-    std::function<void(const sensor_msgs::msg::CompressedImage::SharedPtr msg)> fn;
-    fn = std::bind(mysub_callback, node, _1);
+    function<void(const sensor_msgs::msg::CompressedImage::SharedPtr msg)> fn;
+    fn = bind(mysub_callback, node, _1);
     auto mysub = node->create_subscription<sensor_msgs::msg::CompressedImage>("image/compressed_9",qos_profile,fn);
     rclcpp::spin(node);
     rclcpp::shutdown();
