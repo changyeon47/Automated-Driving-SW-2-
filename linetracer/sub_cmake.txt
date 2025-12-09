@@ -17,7 +17,7 @@ find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 
 include_directories(
-  src             # LineTracker.hpp 같은 헤더 위치
+  include            
   ${OpenCV_INCLUDE_DIRS}
 )
 
