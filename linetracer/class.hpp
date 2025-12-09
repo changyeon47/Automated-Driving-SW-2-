@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 class LineTracker
 {
+
 private:
     bool  first_pt = false;
     cv::Point pt;
@@ -25,25 +26,25 @@ private:
 public:
     LineTracker() = default;
 
-    // 전처리 BGR에서 gray + 밝기 보정 +  하단 1/4 ROI하는 함수
+    //전처리: BGR frame -> gray + 밝기 보정 + TH + 하단 1/4 ROI
     void preprocess(const cv::Mat& frame);
 
-    // 라벨링 함수 
+    // --- 라벨링 ---
     void computeConnectedComponents();
 
-    //기준점(pt)에 가장 가까운 객체 찾는 함수
+    //기준점(pt)에 가장 가까운 객체 찾기
     bool updateTrackingPoint();
 
-    // 박스/점 그리는 함수
+    // 박스/점 그리기 (color Mat 안에 그려짐)
     void drawObjects(bool found_target);
 
-    // 에러 계산하는 함수
+    // 에러 계산: 중앙 - pt.x
     int computeError() const;
 
-    // 처리된 ROI 3채널 영상으로 수정하여 반환
+    // 처리된 ROI (색 입힌 이진 영상) 얻기
     const cv::Mat& getThreshColor() const;
 
-    //원본 프레임을 비디오에 저장
-    void writeFrame(const cv::Mat& frame);
+    //(옵션) 원본 프레임을 비디오로 저장하고 싶을 때
+    void writeFrame();
 
 };
