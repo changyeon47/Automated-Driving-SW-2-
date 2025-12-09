@@ -24,7 +24,7 @@ void mysub_callback(rclcpp::Node::SharedPtr node,
         RCLCPP_WARN(node->get_logger(), "Empty frame");
         return;
     }
-    tracker.writeFrame(frame);
+    tracker.writeFrame();
     tracker.preprocess(frame);
     tracker.computeConnectedComponents();
     bool found = tracker.updateTrackingPoint();
@@ -40,9 +40,8 @@ void mysub_callback(rclcpp::Node::SharedPtr node,
     // 5) 시간 측정 및 로그
     auto endTime = std::chrono::steady_clock::now();
     float totalTime_ms = std::chrono::duration<float, std::milli>(endTime - startTime).count();
-    float totalTime_s  = totalTime_ms / 1000.0f;
 
-    RCLCPP_INFO(node->get_logger(), "err:%d, time:%.5f", error, totalTime_s);
+    RCLCPP_INFO(node->get_logger(), "err:%d, time:%.5f", error, totalTime_ms);
 }
 
 
