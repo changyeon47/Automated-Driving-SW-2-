@@ -3,7 +3,7 @@ https://youtu.be/807pPFbpGvk
 #### linetracer outline
 https://youtu.be/DWen5teSCWc
 
-'''C++
+'''cpp
 void LineTracker::preprocess(const cv::Mat& frame)
 {
     // 1) BGR -> Gray
