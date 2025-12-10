@@ -119,7 +119,7 @@ void LineTracker::writeFrame()
 {
     // 아직 drawObjects가 안 돌아간 상태면 color가 비어 있을 수 있음
     if (color.empty()) {
-        std::cerr << "⚠️ 처리된 프레임(color)이 비어 있어서 저장할 수 없습니다.\n";
+        std::cerr << " 처리된 프레임(color)이 비어 있어서 저장할 수 없습니다.\n";
         return;
     }
 
@@ -131,7 +131,7 @@ void LineTracker::writeFrame()
 
         video_writer_.open(filename, fourcc, fps, size, true);
         if (!video_writer_.isOpened()) {
-            std::cerr << "⚠️ VideoWriter open 실패: " << filename << std::endl;
+            std::cerr << " VideoWriter open 실패: " << filename << std::endl;
             return;
         }
     }
