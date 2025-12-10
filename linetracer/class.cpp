@@ -127,7 +127,7 @@ void LineTracker::writeFrame()
         int fourcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
         double fps = 30.0;
         cv::Size size = color.size();
-        std::string filename = "output_proc.avi";   // 처리 영상이니까 이름도 바꿔두자
+        std::string filename = "output_proc.avi";   
 
         video_writer_.open(filename, fourcc, fps, size, true);
         if (!video_writer_.isOpened()) {
