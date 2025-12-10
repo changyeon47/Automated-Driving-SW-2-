@@ -16,10 +16,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
 
-include_directories(
-  include            
-  ${OpenCV_INCLUDE_DIRS}
-)
+
+
+include_directories(include/video)
 
 #build
 add_executable(pub src/pub.cpp)
